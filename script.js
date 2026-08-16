@@ -6,109 +6,702 @@
 (function () {
   'use strict';
 
-  /* ==========================================================================
-     01. Audio Feedback Synthesizer (Web Audio API)
-     ========================================================================== */
-  let audioCtx = null;
-  let sfxEnabled = true;
+  // Global variables to store parsed data
+  let squadData = [];
+  let roadmapData = [];
+  let missionData = {};
+  let typewriterPhrases = [
+    "Turning 3 AM pe charcha into national-level solutions.",
+    "100% caffeine, 0% compromise. SIH 2026 Ready."
+  ];
 
-  function initAudio() {
-    if (!audioCtx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-        audioCtx = new AudioContext();
+  /* ==========================================================================
+     01. Page Routing & Section Navigation
+     ========================================================================== */
+  const desktopNavLinks = document.querySelectorAll('.desktop-nav .nav-link');
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+  // Intercept navigation clicks for smooth scroll
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.nav-link, .mobile-nav-link, .brand-logo, #exploreBtn, .hero-cta-group .btn');
+    if (link) {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        if (window.DATA_PREFIX === '../') {
+          window.location.href = '../' + href;
+          return;
+        }
+        e.preventDefault();
+        const targetId = href.substring(1);
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          try {
+            history.pushState(null, '', href);
+          } catch (err) {
+            // Fallback for file:// protocol
+          }
+          
+          desktopNavLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === href));
+          mobileNavLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === href));
+        }
       }
     }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
+  });
 
-  function playTone(freq = 600, type = 'sine', duration = 0.04, gainVal = 0.03) {
-    if (!sfxEnabled) return;
-    try {
-      initAudio();
-      if (!audioCtx) return;
-      
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      
-      gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-      
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    } catch (e) {
-      // Ignore audio policy restrictions
-    }
-  }
-
-  function playKeyClick() {
-    // Soft mechanical click
-    playTone(700 + Math.random() * 200, 'triangle', 0.03, 0.02);
-  }
-
-  function playSuccessChime() {
-    if (!sfxEnabled) return;
-    setTimeout(() => playTone(523.25, 'sine', 0.08, 0.05), 0);
-    setTimeout(() => playTone(659.25, 'sine', 0.08, 0.05), 70);
-    setTimeout(() => playTone(783.99, 'sine', 0.12, 0.06), 140);
-  }
-
-  /* Sound Toggle Setup */
-  const soundToggleBtn = document.getElementById('soundToggleBtn');
-  const soundStatusText = document.getElementById('soundStatusText');
-  const soundIcon = document.getElementById('soundIcon');
-
-  // Load sound preference from localStorage
-  const savedSfx = localStorage.getItem('gg_sfx_enabled');
-  if (savedSfx !== null) {
-    sfxEnabled = savedSfx === 'true';
-    updateSoundUI();
-  }
-
-  function updateSoundUI() {
-    if (soundStatusText) soundStatusText.textContent = sfxEnabled ? 'ON' : 'MUTED';
-    if (soundIcon) soundIcon.textContent = sfxEnabled ? '🔊' : '🔇';
-    if (soundToggleBtn) {
-      soundToggleBtn.classList.toggle('muted', !sfxEnabled);
-    }
-  }
-
-  if (soundToggleBtn) {
-    soundToggleBtn.addEventListener('click', () => {
-      sfxEnabled = !sfxEnabled;
-      localStorage.setItem('gg_sfx_enabled', sfxEnabled.toString());
-      updateSoundUI();
-      if (sfxEnabled) playSuccessChime();
-    });
-  }
-
-  // Play subtle clicks on all interactive buttons
-  document.addEventListener('click', (e) => {
-    const target = e.target.closest('button, .btn, .nav-link, .mobile-nav-link, .cmd-chip, input[type="range"]');
-    if (target && target.id !== 'soundToggleBtn') {
-      playKeyClick();
+  // Handle load scroll if URL has a hash
+  window.addEventListener('load', () => {
+    if (window.location.hash) {
+      setTimeout(() => {
+        const element = document.getElementById(window.location.hash.substring(1));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300);
     }
   });
 
   /* ==========================================================================
-     02. Typewriter Effect (Hero Subtitle)
+     02. Markdown File Parsers
      ========================================================================== */
-  const typewriterPhrases = [
-    "Turning 3 AM chai & chaos into national-level solutions.",
-    "100% caffeine, 0% compromise. SIH 2026 Ready.",
-    "Engineering resilient microservices & edge AI for public good.",
-    "Building tech that survives aggressive jury edge cases.",
-    "git commit -m 'Trust the process & push to main'."
-  ];
+  function parseDataMd(text) {
+    const lines = text.split('\n');
+    let repoLink = '';
+    let projectStatus = '';
+    for (const line of lines) {
+      if (line.includes('Repository Link')) {
+        const match = line.match(/https:\/\/github\.com\/[^\/\s\?\#\)]+\/[^\/\s\?\#\)]+/);
+        if (match) repoLink = match[0];
+      }
+      if (line.includes('Current Project Status')) {
+        const parts = line.split(':');
+        if (parts.length > 1) {
+          projectStatus = parts[1].replace(/[\*\-\`]/g, '').trim();
+        }
+      }
+    }
+    return { repoLink, projectStatus };
+  }
 
+  function parseMarkdownTable(text) {
+    const lines = text.split('\n');
+    const rows = [];
+    let headers = [];
+    let separatorSkipped = false;
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line.startsWith('|') || !line.endsWith('|')) continue;
+      
+      const cols = line.split('|').map(s => s.trim());
+      if (cols.length > 1) {
+        cols.shift();
+        cols.pop();
+      }
+      
+      if (headers.length === 0) {
+        headers = cols;
+      } else if (!separatorSkipped) {
+        if (cols[0].includes('---') || cols[0].includes('-')) {
+          separatorSkipped = true;
+        }
+      } else {
+        const row = {};
+        headers.forEach((header, idx) => {
+          row[header] = cols[idx] || '';
+        });
+        rows.push(row);
+      }
+    }
+    return rows;
+  }
+
+  function parseKeyValueTable(rows) {
+    const map = {};
+    rows.forEach(row => {
+      if (row.Key && row.Value) {
+        map[row.Key.trim()] = row.Value.trim();
+      }
+    });
+    return map;
+  }
+
+  function highlightJSCode(code) {
+    let html = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Strings
+    html = html.replace(/(["'])(.*?)\1/g, '<span class="token-string">$1$2$1</span>');
+
+    // Keywords
+    html = html.replace(/\b(const|return)\b/g, '<span class="token-keyword">$1</span>');
+
+    // Numbers
+    html = html.replace(/\b(\d+(\.\d+)?)\b/g, '<span class="token-number">$1</span>');
+
+    // Functions
+    html = html.replace(/\b(execute)\b/g, '<span class="token-func">$1</span>');
+
+    // Variables & Properties
+    html = html.replace(/\b(GirlGangPlusTax)\b/g, '<span class="token-var">$1</span>');
+    html = html.replace(/\b(baseSquad|hackathonTax|caffeine|debuggingEnergy|brainpowerSurge|sarcasmIndex|readiness)\b/g, '<span class="token-prop">$1</span>');
+
+    return html;
+  }
+
+  /* ==========================================================================
+     03. Dynamic Data Fetch & Render
+     ========================================================================== */
+  
+  // Fetch repository commits and issues count from GitHub API
+  async function fetchGitHubStats(repoUrl) {
+    try {
+      const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/\s\?\#]+)/);
+      if (!match) throw new Error('Invalid GitHub URL');
+      const owner = match[1];
+      const repo = match[2];
+
+      const repoApiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+      const commitsApiUrl = `${repoApiUrl}/commits?per_page=1`;
+
+      // Fetch issues count
+      const repoResponse = await fetch(repoApiUrl);
+      if (repoResponse.ok) {
+        const repoData = await repoResponse.json();
+        const bugsCount = repoData.open_issues_count !== undefined ? repoData.open_issues_count : 0;
+        const bugsElem = document.getElementById('statBugs');
+        if (bugsElem) {
+          bugsElem.innerHTML = `${bugsCount}<span class="stat-unit"> bugs</span>`;
+        }
+      }
+
+      // Fetch commits count via Link header relation count
+      const commitsResponse = await fetch(commitsApiUrl);
+      if (commitsResponse.ok) {
+        let commitCount = 348;
+        const linkHeader = commitsResponse.headers.get('Link');
+        if (linkHeader) {
+          const lastMatch = linkHeader.match(/page=(\d+)>;\s*rel="last"/);
+          if (lastMatch) {
+            commitCount = parseInt(lastMatch[1], 10);
+          }
+        } else {
+          const commitsData = await commitsResponse.json();
+          if (Array.isArray(commitsData)) {
+            commitCount = commitsData.length;
+          }
+        }
+        const commitsElem = document.getElementById('statCommits');
+        if (commitsElem) {
+          commitsElem.innerHTML = `${commitCount}<span class="stat-unit">+</span>`;
+        }
+      }
+    } catch (e) {
+      console.warn('Fallback metadata counts used due to network rate limiting:', e.message);
+      const bugsElem = document.getElementById('statBugs');
+      const commitsElem = document.getElementById('statCommits');
+      if (bugsElem) bugsElem.innerHTML = `4<span class="stat-unit"> bugs</span>`;
+      if (commitsElem) commitsElem.innerHTML = `348<span class="stat-unit">+</span>`;
+    }
+  }
+
+  // Load data.md
+  async function initDataMd() {
+    try {
+      const response = await fetch((window.DATA_PREFIX || '') + 'data/data.md');
+      if (!response.ok) throw new Error('Failed to fetch data.md');
+      const text = await response.text();
+      const rows = parseMarkdownTable(text);
+      const dataMap = parseKeyValueTable(rows);
+      
+      const { repoLink, projectStatus } = parseDataMd(text);
+      
+      const statusElems = document.querySelectorAll('.site-footer .meta-col .meta-item strong.text-lime');
+      statusElems.forEach(el => {
+        el.textContent = projectStatus || 'In Progress';
+      });
+
+      // Ticker Track
+      const tickerTrack = document.getElementById('marqueeTrack');
+      if (tickerTrack && dataMap['Ticker Items']) {
+        const items = dataMap['Ticker Items'].split(',').map(s => s.trim());
+        let tickerHtml = '';
+        for (let i = 0; i < 2; i++) {
+          items.forEach(item => {
+            tickerHtml += `<span class="marquee-item">`;
+            if (item.includes('STATUS') || item.includes('SIH')) {
+              tickerHtml += `<span class="pulse-dot"></span> `;
+            }
+            tickerHtml += `${item}</span>\n<span class="marquee-sep">//</span>\n`;
+          });
+        }
+        tickerTrack.innerHTML = tickerHtml;
+      }
+
+      // Typewriter phrases
+      if (dataMap['Typewriter Phrases']) {
+        typewriterPhrases = dataMap['Typewriter Phrases'].split(',').map(s => s.trim());
+      }
+
+      // Hero Description
+      const heroDesc = document.getElementById('heroDesc');
+      if (heroDesc && dataMap['Hero Description']) {
+        heroDesc.textContent = dataMap['Hero Description'];
+      }
+
+      // Calculator Headers
+      const calcBadge = document.getElementById('calcBadge');
+      if (calcBadge && dataMap['Calculator Badge']) calcBadge.textContent = dataMap['Calculator Badge'];
+      const calcTitle = document.getElementById('calcTitle');
+      if (calcTitle && dataMap['Calculator Title']) calcTitle.textContent = dataMap['Calculator Title'];
+      const calcSubtitle = document.getElementById('calcSubtitle');
+      if (calcSubtitle && dataMap['Calculator Subtitle']) calcSubtitle.textContent = dataMap['Calculator Subtitle'];
+
+      // Footer
+      const footerSlogan = document.getElementById('footerSlogan');
+      if (footerSlogan && dataMap['Footer Slogan']) footerSlogan.textContent = dataMap['Footer Slogan'];
+      const footerEvent = document.getElementById('footerEvent');
+      if (footerEvent && dataMap['Footer Event']) footerEvent.textContent = dataMap['Footer Event'];
+      const footerTeamName = document.getElementById('footerTeamName');
+      if (footerTeamName && dataMap['Footer Team Name']) footerTeamName.textContent = dataMap['Footer Team Name'];
+      const footerTaxDeductible = document.getElementById('footerTaxDeductible');
+      if (footerTaxDeductible && dataMap['Footer Tax Deductible']) footerTaxDeductible.textContent = dataMap['Footer Tax Deductible'];
+
+      if (repoLink) {
+        fetchGitHubStats(repoLink);
+      }
+    } catch (e) {
+      console.warn('Failed to load local data.md, using static project fallback.', e.message);
+      fetchGitHubStats('https://github.com/RealRatnadwip/GirlGangPlusTax-1');
+    }
+  }
+
+  // Load lore.md
+  async function initLoreMd() {
+    try {
+      const response = await fetch((window.DATA_PREFIX || '') + 'data/lore.md');
+      if (!response.ok) throw new Error('Failed to fetch lore.md');
+      const text = await response.text();
+      const rows = parseMarkdownTable(text);
+      const loreMap = parseKeyValueTable(rows);
+
+      const loreBadge = document.getElementById('loreBadge');
+      if (loreBadge && loreMap['Badge']) loreBadge.textContent = loreMap['Badge'];
+      const loreTitle = document.getElementById('loreTitle');
+      if (loreTitle && loreMap['Title']) loreTitle.textContent = loreMap['Title'];
+      const loreSubtitle = document.getElementById('loreSubtitle');
+      if (loreSubtitle && loreMap['Subtitle']) loreSubtitle.textContent = loreMap['Subtitle'];
+      
+      const loreLead = document.getElementById('loreLead');
+      if (loreLead && loreMap['Lead']) {
+        loreLead.innerHTML = loreMap['Lead'].replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      }
+      
+      const loreMain = document.getElementById('loreMain');
+      if (loreMain && loreMap['Main Body']) loreMain.textContent = loreMap['Main Body'];
+      const loreQuote = document.getElementById('loreQuote');
+      if (loreQuote && loreMap['Quote']) loreQuote.textContent = loreMap['Quote'];
+      const loreNote = document.getElementById('loreNote');
+      if (loreNote && loreMap['Note']) loreNote.textContent = loreMap['Note'];
+
+      // Code Snippet
+      const codeBlock = document.querySelector('.formula-card code');
+      if (codeBlock && loreMap['Code Snippet']) {
+        const rawCode = loreMap['Code Snippet'].replace(/\\n/g, '\n');
+        codeBlock.innerHTML = highlightJSCode(rawCode);
+      }
+
+      // Badges
+      const loreBadges = document.getElementById('loreBadges');
+      if (loreBadges && loreMap['Badges']) {
+        const chips = loreMap['Badges'].split(',').map(s => s.trim());
+        let badgesHtml = '';
+        const chipColors = ['chip-lime', 'chip-peach', 'chip-cyan', 'chip-gold'];
+        chips.forEach((chip, idx) => {
+          const colorClass = chipColors[idx % chipColors.length];
+          badgesHtml += `<span class="chip ${colorClass}">${chip}</span>\n`;
+        });
+        loreBadges.innerHTML = badgesHtml;
+      }
+    } catch (e) {
+      console.warn('Failed to load lore.md', e.message);
+    }
+  }
+
+  // Load mission.md
+  async function initMissionMd() {
+    try {
+      const response = await fetch((window.DATA_PREFIX || '') + 'data/mission.md');
+      if (!response.ok) throw new Error('Failed to fetch mission.md');
+      const text = await response.text();
+      const rows = parseMarkdownTable(text);
+      const missionMap = parseKeyValueTable(rows);
+      missionData = missionMap;
+
+      const missionBadge = document.getElementById('missionBadge');
+      if (missionBadge && missionMap['Badge']) missionBadge.textContent = missionMap['Badge'];
+      const missionTitle = document.getElementById('missionTitle');
+      if (missionTitle && missionMap['Title']) missionTitle.textContent = missionMap['Title'];
+      const missionSubtitle = document.getElementById('missionSubtitle');
+      if (missionSubtitle && missionMap['Subtitle']) missionSubtitle.textContent = missionMap['Subtitle'];
+
+      const missionLayout = document.querySelector('.mission-layout');
+      if (missionLayout && missionMap['Problem Title'] === 'Yet to be revealed') {
+        missionLayout.classList.add('mission-locked-layout');
+        missionLayout.innerHTML = `
+          <div class="mission-locked-card">
+            <div class="card-terminal-bar">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="bar-title">classified_mission.sh</span>
+            </div>
+            <div class="locked-card-body">
+              <div class="locked-icon">[ LOCKED ]</div>
+              <h3 class="locked-title">MISSION DECRYPTING...</h3>
+              <p class="locked-text">
+                ${missionMap['Problem Description'] || 'We are currently analyzing and refining potential Smart India Hackathon problem statements. The official solution blueprint, system architecture, and tech stack will be disclosed here once locked.'}
+              </p>
+              <div class="decryption-progress">
+                <div class="progress-track">
+                  <div class="progress-bar" style="width: 33.3%;"></div>
+                </div>
+                <span class="progress-pct">33.3% Decrypted (Awaiting Final Statement)</span>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const problemCardTag = document.getElementById('problemCardTag');
+      if (problemCardTag && missionMap['Problem Card Tag']) problemCardTag.textContent = missionMap['Problem Card Tag'];
+      const problemTitle = document.getElementById('problemTitle');
+      if (problemTitle && missionMap['Problem Title']) problemTitle.textContent = missionMap['Problem Title'];
+      const problemDescription = document.getElementById('problemDescription');
+      if (problemDescription && missionMap['Problem Description']) problemDescription.textContent = missionMap['Problem Description'];
+
+      // Highlights
+      const problemHighlights = document.getElementById('problemHighlights');
+      if (problemHighlights) {
+        let highlightsHtml = '';
+        for (let i = 1; i <= 3; i++) {
+          const hl = missionMap[`Highlight ${i}`];
+          if (hl) {
+            const parts = hl.split(':');
+            const title = parts[0] ? parts[0].trim() : '';
+            const desc = parts[1] ? parts[1].trim() : '';
+            highlightsHtml += `
+              <div class="highlight-item">
+                <span class="icon">*</span>
+                <div>
+                  <strong>${title}:</strong> ${desc}
+                </div>
+              </div>`;
+          }
+        }
+        problemHighlights.innerHTML = highlightsHtml;
+      }
+
+      const stackCardTag = document.getElementById('stackCardTag');
+      if (stackCardTag && missionMap['Stack Card Tag']) stackCardTag.textContent = missionMap['Stack Card Tag'];
+
+      // Tech Stack Groups
+      const stackCategories = document.getElementById('stackCategories');
+      if (stackCategories) {
+        let categoriesHtml = '';
+        for (let i = 1; i <= 4; i++) {
+          const groupTitle = missionMap[`Tech Group ${i} Title`];
+          const groupTags = missionMap[`Tech Group ${i} Tags`];
+          if (groupTitle && groupTags) {
+            const tagsList = groupTags.split(',').map(s => s.trim());
+            let tagsHtml = '';
+            tagsList.forEach(tag => {
+              tagsHtml += `<span class="tech-tag">${tag}</span>\n`;
+            });
+            categoriesHtml += `
+              <div class="stack-group">
+                <div class="group-header">
+                  <span class="mono-symbol">#0${i}</span> ${groupTitle}
+                </div>
+                <div class="group-tags">
+                  ${tagsHtml}
+                </div>
+              </div>`;
+          }
+        }
+        stackCategories.innerHTML = categoriesHtml;
+      }
+
+      const archNote = document.getElementById('archNote');
+      if (archNote && missionMap['Architecture Note']) {
+        archNote.innerHTML = `<span>${missionMap['Architecture Note']}</span>`;
+      }
+    } catch (e) {
+      console.warn('Failed to load mission.md', e.message);
+    }
+  }
+
+
+
+  // Load squad.md
+  async function initSquadMd() {
+    try {
+      const response = await fetch((window.DATA_PREFIX || '') + 'data/squad.md');
+      if (!response.ok) throw new Error('Failed to fetch squad.md');
+      const text = await response.text();
+      
+      squadData = parseMarkdownTable(text);
+      renderSquadCards(squadData);
+    } catch (e) {
+      console.warn('Failed to load squad.md, squad grid remains unpopulated.', e.message);
+    }
+  }
+
+  function renderSquadCards(rows) {
+    const grid = document.getElementById('teamGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    rows.forEach(row => {
+      const name = row.Name || 'Yet to be announced';
+      const username = row.Username || 'Coming Soon';
+      const link = row['Profile Link'] || '#';
+      const image = row.Image || '#';
+      const role = row.Role || '';
+      const category = row.Category || 'core';
+      const badge = row['Mini Badge'] || '';
+      const bio = row.Bio || '';
+      const superpower = row.Superpower || 'TBD';
+      const caffeine = row['Caffeine Intake'] || 'TBD';
+      const favError = row['Favorite Error'] || 'TBD';
+      const tagsStr = row.Tags || '';
+      const status = (row.Status || 'Confirmed').toLowerCase();
+
+      const card = document.createElement('div');
+      card.className = 'member-card';
+      card.setAttribute('data-category', category);
+
+      if (status === 'unconfirmed') {
+        card.classList.add('member-card-unconfirmed');
+        
+        let roleHtml = '';
+        if (role && role.trim() !== '') {
+          roleHtml = `<span class="member-role">${role}</span>`;
+        }
+
+        let badgeHtml = '';
+        if (badge && badge.trim() !== '') {
+          badgeHtml = `<span class="badge-mini">${badge}</span>`;
+        }
+
+        let bioHtml = '';
+        if (bio && bio.trim() !== '') {
+          bioHtml = `<p class="member-bio">${bio}</p>`;
+        }
+        
+        let tagsHtml = '';
+        if (tagsStr && tagsStr.trim() !== '') {
+          tagsHtml = `<div class="member-tags">` + 
+            tagsStr.split(',')
+              .map(t => t.trim())
+              .filter(t => t.length > 0)
+              .map(t => `<span>${t}</span>`)
+              .join('\n') + 
+            `</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="member-header">
+            <div class="member-avatar avatar-tba">
+              <span class="avatar-text">&lt;TBA/&gt;</span>
+            </div>
+            <div class="member-badge-group">
+              ${roleHtml}
+              ${badgeHtml}
+            </div>
+          </div>
+          <div class="member-body">
+            <h3 class="member-name">Yet to be announced</h3>
+            <p class="member-handle">${username}</p>
+            ${bioHtml}
+            <div class="member-quirks">
+              <div class="quirk-item">
+                <span class="q-label">Superpower:</span> <span class="q-val">TBD</span>
+              </div>
+              <div class="quirk-item">
+                <span class="q-label">Caffeine Intake:</span> <span class="q-val">TBD</span>
+              </div>
+              <div class="quirk-item">
+                <span class="q-label">Favorite Error:</span> <span class="q-val"><code>TBD</code></span>
+              </div>
+            </div>
+            ${tagsHtml}
+          </div>
+        `;
+      } else {
+        let avatarClass = 'avatar-fs';
+        let avatarText = '<FS/>';
+        const roleLower = role.toLowerCase();
+        const catLower = category.toLowerCase();
+        
+        if (catLower === 'core') {
+          avatarClass = 'avatar-lead';
+          avatarText = '<TL/>';
+        } else if (catLower === 'ai') {
+          avatarClass = 'avatar-ai';
+          avatarText = '<AI/>';
+        } else if (catLower === 'design') {
+          avatarClass = 'avatar-ux';
+          avatarText = '<UX/>';
+        } else if (roleLower.includes('devops') || roleLower.includes('security') || roleLower.includes('infra')) {
+          avatarClass = 'avatar-infra';
+          avatarText = '<OPS/>';
+        } else if (roleLower.includes('data') || roleLower.includes('research')) {
+          avatarClass = 'avatar-research';
+          avatarText = '<DATA/>';
+        }
+
+        const tagsHtml = tagsStr.split(',')
+          .map(t => t.trim())
+          .filter(t => t.length > 0)
+          .map(t => `<span>${t}</span>`)
+          .join('\n');
+
+        let avatarInnerHtml = `<span class="avatar-text">${avatarText}</span>`;
+        if (image !== '#' && image.trim() !== '') {
+          const absoluteImgPath = (window.DATA_PREFIX || '') + image;
+          avatarInnerHtml = `<img src="${absoluteImgPath}" alt="${name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=&quot;avatar-text&quot;>${avatarText}</span>';">`;
+        }
+
+        card.innerHTML = `
+          <div class="member-header">
+            <div class="member-avatar ${avatarClass}">
+              ${avatarInnerHtml}
+            </div>
+            <div class="member-badge-group">
+              <span class="member-role">${role}</span>
+              <span class="badge-mini">${badge}</span>
+            </div>
+          </div>
+          <div class="member-body">
+            <h3 class="member-name">${name}</h3>
+            <p class="member-handle">
+              <a href="${link}" target="_blank" class="member-handle-link" style="color: var(--accent-pink); text-decoration: none;">${username}</a>
+            </p>
+            <p class="member-bio">${bio}</p>
+            <div class="member-quirks">
+              <div class="quirk-item">
+                <span class="q-label">Superpower:</span> <span class="q-val">${superpower}</span>
+              </div>
+              <div class="quirk-item">
+                <span class="q-label">Caffeine Intake:</span> <span class="q-val">${caffeine}</span>
+              </div>
+              <div class="quirk-item">
+                <span class="q-label">Favorite Error:</span> <span class="q-val"><code>${favError}</code></span>
+              </div>
+            </div>
+            <div class="member-tags">
+              ${tagsHtml}
+            </div>
+          </div>
+        `;
+      }
+      grid.appendChild(card);
+    });
+
+    setupFilterListeners();
+  }
+
+  function setupFilterListeners() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      
+      newBtn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        newBtn.classList.add('active');
+
+        const filterValue = newBtn.getAttribute('data-filter');
+        const activeCards = document.querySelectorAll('.member-card');
+
+        activeCards.forEach(card => {
+          const category = card.getAttribute('data-category');
+          if (filterValue === 'all' || category === filterValue) {
+            card.style.display = 'flex';
+            card.style.opacity = '1';
+          } else {
+            card.style.display = 'none';
+            card.style.opacity = '0';
+          }
+        });
+      });
+    });
+  }
+
+  // Load roadmap.md
+  async function initRoadmapMd() {
+    try {
+      const response = await fetch((window.DATA_PREFIX || '') + 'data/roadmap.md');
+      if (!response.ok) throw new Error('Failed to fetch roadmap.md');
+      const text = await response.text();
+      
+      roadmapData = parseMarkdownTable(text);
+      renderRoadmap(roadmapData);
+    } catch (e) {
+      console.warn('Failed to load roadmap.md, roadmap timeline remains empty.', e.message);
+    }
+  }
+
+  function renderRoadmap(rows) {
+    const container = document.getElementById('timelineContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    rows.forEach(row => {
+      const step = row.Step || '01';
+      const title = row.Title || '';
+      const desc = row.Description || '';
+      const status = (row.Status || 'Upcoming').toLowerCase();
+      const phase = row.Phase || '';
+
+      const item = document.createElement('div');
+      item.className = 'timeline-item';
+      
+      let statusClass = 'upcoming';
+      let pillText = 'UPCOMING';
+      
+      if (status === 'completed') {
+        item.classList.add('done');
+        statusClass = 'done';
+        pillText = 'COMPLETED';
+      } else if (status === 'in progress') {
+        item.classList.add('active');
+        statusClass = 'active';
+        pillText = 'IN PROGRESS (ACTIVE)';
+      } else {
+        item.classList.add('upcoming');
+      }
+
+      item.innerHTML = `
+        <div class="timeline-marker">${step}</div>
+        <div class="timeline-content">
+          <div class="timeline-status-pill ${statusClass === 'active' ? 'pulse-pill' : ''}">${pillText}</div>
+          <h3 class="timeline-title">${title}</h3>
+          <p class="timeline-desc">${desc}</p>
+          <span class="timeline-date">${phase}</span>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  /* ==========================================================================
+     04. Typewriter Effect (Hero Subtitle)
+     ========================================================================== */
   const dynamicTypewriter = document.getElementById('dynamicTypewriter');
   let phraseIndex = 0;
   let charIndex = 0;
@@ -116,7 +709,7 @@
   let typeSpeed = 50;
 
   function typeWriterLoop() {
-    if (!dynamicTypewriter) return;
+    if (!dynamicTypewriter || typewriterPhrases.length === 0) return;
 
     const currentPhrase = typewriterPhrases[phraseIndex];
 
@@ -131,24 +724,23 @@
     }
 
     if (!isDeleting && charIndex === currentPhrase.length) {
-      typeSpeed = 2000; // Pause at end
+      typeSpeed = 2000;
       isDeleting = true;
     } else if (isDeleting && charIndex === 0) {
       isDeleting = false;
       phraseIndex = (phraseIndex + 1) % typewriterPhrases.length;
-      typeSpeed = 500; // Pause before new phrase
+      typeSpeed = 500;
     }
 
     setTimeout(typeWriterLoop, typeSpeed);
   }
 
   /* ==========================================================================
-     03. Mobile Drawer Navigation & Scroll Highlighting
+     05. Mobile Drawer Navigation & Scroll Highlighting
      ========================================================================== */
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const closeDrawerBtn = document.getElementById('closeDrawerBtn');
   const mobileDrawer = document.getElementById('mobileDrawer');
-  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
   function openDrawer() {
     if (mobileDrawer) {
@@ -188,7 +780,6 @@
     link.addEventListener('click', closeDrawer);
   });
 
-  // Back to top button
   const backToTopBtn = document.getElementById('backToTopBtn');
   if (backToTopBtn) {
     backToTopBtn.addEventListener('click', () => {
@@ -196,9 +787,7 @@
     });
   }
 
-  // Active Navigation link observer
   const sections = document.querySelectorAll('section[id]');
-  const desktopNavLinks = document.querySelectorAll('.desktop-nav .nav-link');
 
   function highlightNavOnScroll() {
     const scrollY = window.pageYOffset;
@@ -207,10 +796,14 @@
       const sectionHeight = current.offsetHeight;
       const sectionTop = current.offsetTop - 120;
       const sectionId = current.getAttribute('id');
+      const targetHref = `#${sectionId}`;
 
       if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
         desktopNavLinks.forEach(link => {
-          link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+          link.classList.toggle('active', link.getAttribute('href') === targetHref);
+        });
+        mobileNavLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === targetHref);
         });
       }
     });
@@ -219,419 +812,37 @@
   window.addEventListener('scroll', highlightNavOnScroll);
 
   /* ==========================================================================
-     04. Team Role Filter System
-     ========================================================================== */
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const memberCards = document.querySelectorAll('.member-card');
-
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const filterValue = btn.getAttribute('data-filter');
-
-      memberCards.forEach(card => {
-        const category = card.getAttribute('data-category');
-        if (filterValue === 'all' || category === filterValue) {
-          card.style.display = 'flex';
-          card.style.opacity = '1';
-        } else {
-          card.style.display = 'none';
-          card.style.opacity = '0';
-        }
-      });
-    });
-  });
-
-  /* ==========================================================================
-     05. Interactive "+ Tax" Calculator Widget
-     ========================================================================== */
-  const hoursInput = document.getElementById('hoursInput');
-  const chaiInput = document.getElementById('chaiInput');
-  const bugsInput = document.getElementById('bugsInput');
-  const panicInput = document.getElementById('panicInput');
-
-  const hoursVal = document.getElementById('hoursVal');
-  const chaiVal = document.getElementById('chaiVal');
-  const bugsVal = document.getElementById('bugsVal');
-  const panicVal = document.getElementById('panicVal');
-
-  const taxScoreNum = document.getElementById('taxScoreNum');
-  const taxVerdict = document.getElementById('taxVerdict');
-  const taxCaffeineResult = document.getElementById('taxCaffeineResult');
-  const taxGitRisk = document.getElementById('taxGitRisk');
-  const taxWinProb = document.getElementById('taxWinProb');
-  const recalibrateTaxBtn = document.getElementById('recalibrateTaxBtn');
-
-  function calculateTax() {
-    if (!hoursInput || !chaiInput || !bugsInput || !panicInput) return;
-
-    const hours = parseInt(hoursInput.value, 10);
-    const chai = parseInt(chaiInput.value, 10);
-    const bugs = parseInt(bugsInput.value, 10);
-    const panic = parseInt(panicInput.value, 10);
-
-    // Update labels
-    if (hoursVal) hoursVal.textContent = `${hours} hrs`;
-    if (chaiVal) chaiVal.textContent = `${chai} cups`;
-    if (bugsVal) bugsVal.textContent = `${bugs} bugs`;
-    
-    let panicLabel = 'Calm (20%)';
-    if (panic > 75) panicLabel = `Unhinged Chaos (${panic}%)`;
-    else if (panic > 45) panicLabel = `Controlled Chaos (${panic}%)`;
-    else if (panic > 25) panicLabel = `Mild Anxiety (${panic}%)`;
-    if (panicVal) panicVal.textContent = panicLabel;
-
-    // Mathematical Tax Formula
-    const baseScore = (hours * 0.35) + (chai * 2.5) + (bugs * 0.4) + (panic * 0.25);
-    const normalizedScore = Math.min(99.9, Math.max(45.0, baseScore)).toFixed(1);
-
-    if (taxScoreNum) taxScoreNum.textContent = normalizedScore;
-
-    // Caffeine level
-    if (taxCaffeineResult) {
-      if (chai > 15) taxCaffeineResult.textContent = 'Transcendental (Chai Overlord)';
-      else if (chai > 7) taxCaffeineResult.textContent = 'High (Hyper-focused)';
-      else taxCaffeineResult.textContent = 'Optimal (Steady Energy)';
-    }
-
-    // Git risk
-    if (taxGitRisk) {
-      if (panic > 70 || hours > 48) taxGitRisk.textContent = 'High (Conflict on Line 420)';
-      else if (panic > 40) taxGitRisk.textContent = 'Moderate (Merge with Prayers)';
-      else taxGitRisk.textContent = 'Low (Clean Rebasing)';
-    }
-
-    // Win probability
-    if (taxWinProb) {
-      const winChance = (94.0 + (parseFloat(normalizedScore) * 0.05)).toFixed(1);
-      taxWinProb.textContent = `${Math.min(99.9, winChance)}% 🏆`;
-    }
-
-    // Verdict
-    if (taxVerdict) {
-      if (normalizedScore > 90) {
-        taxVerdict.textContent = '"STATUS: Unstoppable Hackathon Mode. Code compiles instantly, jury mesmerized."';
-      } else if (normalizedScore > 75) {
-        taxVerdict.textContent = '"STATUS: Peak Hackathon Flow. Ready to present to the SIH Jury without blinking."';
-      } else {
-        taxVerdict.textContent = '"STATUS: Stable & Polished. Ready for demo round 1."';
-      }
-    }
-  }
-
-  [hoursInput, chaiInput, bugsInput, panicInput].forEach(slider => {
-    if (slider) {
-      slider.addEventListener('input', calculateTax);
-    }
-  });
-
-  if (recalibrateTaxBtn) {
-    recalibrateTaxBtn.addEventListener('click', () => {
-      if (hoursInput) hoursInput.value = Math.floor(Math.random() * (48 - 24 + 1)) + 24;
-      if (chaiInput) chaiInput.value = Math.floor(Math.random() * (18 - 6 + 1)) + 6;
-      if (bugsInput) bugsInput.value = Math.floor(Math.random() * (60 - 15 + 1)) + 15;
-      if (panicInput) panicInput.value = Math.floor(Math.random() * (85 - 35 + 1)) + 35;
-      calculateTax();
-      playSuccessChime();
-    });
-  }
-
-  /* ==========================================================================
-     06. Hackathon Terminal (CLI Sandbox)
-     ========================================================================== */
-  const terminalScreen = document.getElementById('terminalScreen');
-  const terminalInput = document.getElementById('terminalInput');
-  const terminalSubmitBtn = document.getElementById('terminalSubmitBtn');
-  const cmdChips = document.querySelectorAll('.cmd-chip');
-
-  const cliCommands = {
-    help: () => `AVAILABLE COMMANDS:
-  • help          : Print this cheat sheet
-  • team / squad  : Inspect squad architecture & roles
-  • tax           : View why "+ Tax" is the game changer
-  • sih           : Reveal the SIH 2026 problem blueprint
-  • coffee / chai : Fuel the team terminal with virtual caffeine
-  • git-status    : Inspect live repository status & commit notes
-  • sudo win      : Execute championship victory routine
-  • whoami        : Check your current identity
-  • clear         : Wipe terminal buffer`,
-
-    team: () => `[GIRLGANG+TAX] ROSTER ARCHITECTURE:
-  ├─ Sayantica      [@sayantica.exe]  : Team Lead & Systems Architect
-  ├─ Model Whisperer[@tensors.ai]     : Edge AI & Deep Learning Wizard
-  ├─ Async Warrior  [@async.await]    : Fullstack & Low-Latency APIs
-  ├─ Infra Commander[@k8s.root]       : DevOps, Security & Cloud Clusters
-  ├─ Design Alchemy [@figma.ninja]    : UI/UX & Micro-Interactions
-  └─ Data Strategist[@data.insights]  : Analytics & Domain Research
-  ==> Total Synergy Factor: 10x Velocity`,
-
-    tax: () => `TAX EQUATION AUDIT:
-  Base Unit = 5 Coders + 1 Vision
-  + Tax     = 140+ Cups of Chai + 3:42 AM Eureka Moments + Zero Panic
-  Result    = 100% Hackathon Ready Solution!`,
-
-    sih: () => `SIH 2026 MISSION DOSSIER:
-  Problem : Intelligent Automation & Real-time Public Decision Engine
-  Stack   : Next.js, FastAPI, ONNX, Qdrant, Docker, Kubernetes
-  Target  : 36-Hour National Grand Finale Champion`,
-
-    coffee: () => `☕ [CAFFEINE SYNTHESIZER ACTIVATED]
-      ( (
-       ) )
-    .______.
-    |  CHAI|]  <-- Fresh Masala Chai Brewed!
-    \\______/      +100 Focus | +50 Debug Speed | -0 Bugs`,
-
-    chai: () => `☕ [MASALA CHAI INJECTED]
-      ~ Chai pe charcha with jury guaranteed to pass with flying colors! ~`,
-
-    'git status': () => `On branch main
-Your branch is ahead of 'origin/main' by 348 commits.
-(use "git push" to publish your local commits to jury)
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-    sih_first_prize_trophy.glb
-    3am_secret_sauce.py
-
-nothing added to commit but untracked files present (working tree clean)`,
-
-    'git-status': () => cliCommands['git status'](),
-
-    'sudo win': () => {
-      playSuccessChime();
-      return `🎉 [SUDO GRANTED] INITIATING VICTORY SEQUENCE...
-  ███████╗██╗██╗  ██╗    ██████╗  ██████╗ ██████╗  ██████╗ 
-  ██╔════╝██║██║  ██║    ╚════██╗██╔═████╗╚════██╗██╔════╝ 
-  ███████╗██║███████║     █████╔╝██║██╔██║ █████╔╝███████╗ 
-  ╚════██║██║██╔══██║    ██╔═══╝ ████╔╝██║██╔═══╝ ██╔═══██╗
-  ███████║██║██║  ██║    ███████╗╚██████╔╝███████╗╚██████╔╝
-  🏆 GIRL GANG PLUS TAX - SMART INDIA HACKATHON 2026 CHAMPIONS! 🏆`;
-    },
-
-    whoami: () => `user: distinguished_sih_evaluator_or_fellow_hacker
-permissions: [read, admire, cheer, star_repo, grant_1st_prize]`,
-
-    clear: () => {
-      if (terminalScreen) {
-        terminalScreen.innerHTML = '';
-      }
-      return null;
-    }
-  };
-
-  function executeCommand(rawCmd) {
-    if (!rawCmd || !terminalScreen) return;
-    const cmd = rawCmd.trim().toLowerCase();
-
-    // Echo user input
-    const userLine = document.createElement('div');
-    userLine.className = 't-line t-user-prompt';
-    userLine.textContent = `girlgang@sih-2026:~$ ${rawCmd}`;
-    terminalScreen.appendChild(userLine);
-
-    if (cmd === 'clear') {
-      cliCommands.clear();
-      return;
-    }
-
-    const outputLine = document.createElement('div');
-    outputLine.className = 't-line t-output';
-
-    if (cliCommands[cmd]) {
-      const res = cliCommands[cmd]();
-      if (res) outputLine.textContent = res;
-      playKeyClick();
-    } else {
-      outputLine.innerHTML = `<span style="color: #ff5e7e">Command not found: '${rawCmd}'.</span> Type <span class="t-cmd">'help'</span> to see available commands.`;
-    }
-
-    terminalScreen.appendChild(outputLine);
-    terminalScreen.scrollTop = terminalScreen.scrollHeight;
-  }
-
-  function handleTerminalSubmit() {
-    if (!terminalInput) return;
-    const val = terminalInput.value;
-    if (val.trim()) {
-      executeCommand(val);
-      terminalInput.value = '';
-    }
-  }
-
-  if (terminalInput) {
-    terminalInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        handleTerminalSubmit();
-      }
-    });
-  }
-
-  if (terminalSubmitBtn) {
-    terminalSubmitBtn.addEventListener('click', handleTerminalSubmit);
-  }
-
-  cmdChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const cmd = chip.getAttribute('data-cmd');
-      if (cmd) {
-        executeCommand(cmd);
-      }
-    });
-  });
-
-  /* ==========================================================================
-     07. Community Cheer Wall (LocalStorage)
-     ========================================================================== */
-  const cheerForm = document.getElementById('cheerForm');
-  const cheerAuthor = document.getElementById('cheerAuthor');
-  const cheerMessage = document.getElementById('cheerMessage');
-  const stickyBoard = document.getElementById('stickyBoard');
-
-  const defaultCheers = [
-    {
-      id: 'note_1',
-      author: 'Senior Architect',
-      message: 'Keep your state management clean and make the pitch count! You got this GirlGang! 🚀',
-      color: 'yellow',
-      likes: 12,
-      rotation: -2
-    },
-    {
-      id: 'note_2',
-      author: 'College Mentor',
-      message: 'Remember: When the jury asks tough questions, smile and show the test coverage. 💯',
-      color: 'pink',
-      likes: 19,
-      rotation: 3
-    },
-    {
-      id: 'note_3',
-      author: 'Fellow Hacker',
-      message: 'May your APIs return 200 OK and your CSS never break at 100% zoom! LFG! 🔥',
-      color: 'cyan',
-      likes: 8,
-      rotation: -1.5
-    },
-    {
-      id: 'note_4',
-      author: 'Chai Vendor',
-      message: 'Extra ginger chai reserved for the 3 AM debugging sprint. Best of luck team! ☕',
-      color: 'lime',
-      likes: 27,
-      rotation: 2.5
-    }
-  ];
-
-  function getStoredCheers() {
-    try {
-      const stored = localStorage.getItem('gg_cheer_wall');
-      if (stored) return JSON.parse(stored);
-    } catch (e) {}
-    return defaultCheers;
-  }
-
-  function saveCheers(cheers) {
-    try {
-      localStorage.setItem('gg_cheer_wall', JSON.stringify(cheers));
-    } catch (e) {}
-  }
-
-  function renderCheerWall() {
-    if (!stickyBoard) return;
-    const cheers = getStoredCheers();
-    stickyBoard.innerHTML = '';
-
-    cheers.forEach(cheer => {
-      const card = document.createElement('div');
-      card.className = `sticky-note-card note-${cheer.color || 'yellow'}`;
-      card.style.transform = `rotate(${cheer.rotation || 0}deg)`;
-
-      card.innerHTML = `
-        <span class="note-pin">📌</span>
-        <div class="note-text">"${escapeHtml(cheer.message)}"</div>
-        <div class="note-footer">
-          <span class="note-author">— ${escapeHtml(cheer.author)}</span>
-          <button class="note-like-btn" data-id="${cheer.id}" title="Cheer for this note">
-            ❤️ <span>${cheer.likes || 0}</span>
-          </button>
-        </div>
-      `;
-
-      stickyBoard.appendChild(card);
-    });
-
-    // Attach like listeners
-    const likeBtns = stickyBoard.querySelectorAll('.note-like-btn');
-    likeBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = btn.getAttribute('data-id');
-        likeCheer(id);
-      });
-    });
-  }
-
-  function likeCheer(id) {
-    const cheers = getStoredCheers();
-    const target = cheers.find(c => c.id === id);
-    if (target) {
-      target.likes = (target.likes || 0) + 1;
-      saveCheers(cheers);
-      renderCheerWall();
-      playTone(880, 'sine', 0.06, 0.04);
-    }
-  }
-
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  if (cheerForm) {
-    cheerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const author = cheerAuthor.value.trim();
-      const message = cheerMessage.value.trim();
-      const selectedColor = document.querySelector('input[name="noteColor"]:checked');
-      const color = selectedColor ? selectedColor.value : 'yellow';
-
-      if (!author || !message) return;
-
-      const randomRot = (Math.random() * 6 - 3).toFixed(1);
-      const newCheer = {
-        id: 'note_' + Date.now(),
-        author,
-        message,
-        color,
-        likes: 1,
-        rotation: parseFloat(randomRot)
-      };
-
-      const current = getStoredCheers();
-      current.unshift(newCheer);
-      saveCheers(current);
-      renderCheerWall();
-      playSuccessChime();
-
-      // Reset form
-      cheerAuthor.value = '';
-      cheerMessage.value = '';
-    });
-  }
-
-  /* ==========================================================================
-     08. Initial Boot
+     06. Initial Boot
      ========================================================================== */
   document.addEventListener('DOMContentLoaded', () => {
-    typeWriterLoop();
-    calculateTax();
-    renderCheerWall();
+    // Initial dynamic loaders in parallel for performance
+    Promise.all([
+      initDataMd(),
+      initLoreMd(),
+      initMissionMd(),
+      initSquadMd(),
+      initRoadmapMd()
+    ]).then(() => {
+      typeWriterLoop();
+      
+      // Easter egg console greetings for developers
+      console.log(
+        "%c[GIRLGANG+TAX] Welcome SIH Evaluators! Built with coffee, grit, and zero libraries.", 
+        "color: #22d3ee; font-weight: bold; font-size: 14px; font-family: monospace;"
+      );
+      console.log(
+        "%cTry running help() in this console!", 
+        "color: #a3e635; font-family: monospace;"
+      );
+      
+      window.help = () => {
+        console.log(
+          "%c🔥 Secret unlocked! Guy Tax overhead calculated: 33.3% of team energy spent explaining recursive layouts to the guys. SIH victory is assured.", 
+          "color: #ff5e7e; font-weight: bold;"
+        );
+        return "CHAMPIONS_SIH_2026";
+      };
+    });
   });
 
 })();
