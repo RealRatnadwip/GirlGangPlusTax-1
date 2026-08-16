@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GirlGangPlusTax // SIH 2026 Hackathon Team</title>
-  <meta name="description" content="Official landing page for GirlGangPlusTax - Smart India Hackathon (SIH) team. High caffeine, monospace code, zero fluff, and 100% human grit.">
-  <meta name="keywords" content="GirlGangPlusTax, SIH, Smart India Hackathon, Hackathon Team, Monospace, Web Development">
+  <meta name="description"
+    content="Official landing page for GirlGangPlusTax - Smart India Hackathon (SIH) team. High caffeine, monospace code, zero fluff, and 100% human grit.">
+  <meta name="keywords"
+    content="GirlGangPlusTax, SIH, Smart India Hackathon, Hackathon Team, Monospace, Web Development">
   <meta name="author" content="GirlGangPlusTax">
-  
+
   <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="GirlGangPlusTax // SIH Hackathon Team">
-  <meta property="og:description" content="We turn caffeine and late-night git pushes into prize-winning hackathon solutions. Meet the squad.">
+  <meta property="og:description"
+    content="We turn caffeine and late-night git pushes into prize-winning hackathon solutions. Meet the squad.">
   <meta property="og:type" content="website">
 
   <!-- Google Fonts: Space Mono, JetBrains Mono, Caveat for human handwritten touches -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="theme-dark">
   <!-- Background Ambient Grid & Glow -->
   <div class="bg-grid-overlay" aria-hidden="true"></div>
@@ -29,22 +36,8 @@
 
   <!-- Announcement Ticker Bar -->
   <aside class="top-marquee-bar" aria-label="Hackathon Status Announcement">
-    <div class="marquee-track">
-      <span class="marquee-item"><span class="pulse-dot"></span> SIH 2026: HARDWARE &amp; SOFTWARE CONTENDERS</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item">STATUS: 3:00 AM DEPLOYMENT READY</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item">TAX RATE: 100% PASSION + 0% COMPROMISE</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item">TEAM: GIRLGANG + TAX</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item"><span class="pulse-dot"></span> SIH 2026: HARDWARE &amp; SOFTWARE CONTENDERS</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item">STATUS: 3:00 AM DEPLOYMENT READY</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item">TAX RATE: 100% PASSION + 0% COMPROMISE</span>
-      <span class="marquee-sep">//</span>
-      <span class="marquee-item">TEAM: GIRLGANG + TAX</span>
+    <div class="marquee-track" id="marqueeTrack">
+      <!-- Loaded dynamically from data.md -->
     </div>
   </aside>
 
@@ -55,35 +48,21 @@
         <span class="logo-bracket">[</span>
         <span class="logo-text">GirlGang<span class="tax-accent">+Tax</span></span>
         <span class="logo-bracket">]</span>
-        <span class="version-tag">v26.0</span>
+        <span class="version-tag">v1.3</span>
       </a>
 
       <!-- Desktop Navigation Links -->
       <nav class="desktop-nav" aria-label="Main Navigation">
         <ul class="nav-list">
           <li><a href="#about" class="nav-link">/about</a></li>
-          <li><a href="#mission" class="nav-link">/sih-mission</a></li>
+          <li><a href="#mission" class="nav-link">/yet-to-be-revealed</a></li>
           <li><a href="#team" class="nav-link">/squad</a></li>
-          <li><a href="#calculator" class="nav-link">/tax-formula</a></li>
           <li><a href="#timeline" class="nav-link">/roadmap</a></li>
-          <li><a href="#terminal" class="nav-link">/terminal</a></li>
-          <li><a href="#cheers" class="nav-link">/cheer-wall</a></li>
         </ul>
       </nav>
 
       <!-- Header Action Controls -->
       <div class="header-actions">
-        <!-- Audio Synth Toggle Button -->
-        <button id="soundToggleBtn" class="action-btn sound-btn" title="Toggle retro keyclick sound effects" aria-label="Toggle sound feedback">
-          <span class="btn-icon" id="soundIcon">🔊</span>
-          <span class="btn-text">SFX: <span id="soundStatusText">ON</span></span>
-        </button>
-
-        <!-- GitHub / Quick CTA -->
-        <a href="#mission" class="action-btn cta-btn">
-          <span>&gt;_ View Pitch</span>
-        </a>
-
         <!-- Mobile Hamburger Button -->
         <button id="mobileMenuBtn" class="hamburger-btn" aria-label="Toggle mobile menu" aria-expanded="false">
           <span class="bar"></span>
@@ -101,14 +80,11 @@
       </div>
       <nav class="mobile-nav">
         <ul class="mobile-nav-list">
-          <li><a href="#hero" class="mobile-nav-link"><span class="cmd-num">01.</span> Home <code>$ cd ~</code></a></li>
-          <li><a href="#about" class="mobile-nav-link"><span class="cmd-num">02.</span> Lore &amp; Story <code>$ cat story.md</code></a></li>
-          <li><a href="#mission" class="mobile-nav-link"><span class="cmd-num">03.</span> SIH Mission <code>$ cat pitch.sh</code></a></li>
-          <li><a href="#team" class="mobile-nav-link"><span class="cmd-num">04.</span> The Squad <code>$ git log --team</code></a></li>
-          <li><a href="#calculator" class="mobile-nav-link"><span class="cmd-num">05.</span> Tax Formula <code>$ ./calc_tax.py</code></a></li>
-          <li><a href="#timeline" class="mobile-nav-link"><span class="cmd-num">06.</span> Roadmap <code>$ cat milestones</code></a></li>
-          <li><a href="#terminal" class="mobile-nav-link"><span class="cmd-num">07.</span> Sandbox CLI <code>$ sh --interactive</code></a></li>
-          <li><a href="#cheers" class="mobile-nav-link"><span class="cmd-num">08.</span> Cheer Wall <code>$ echo "LFG!"</code></a></li>
+          <li><a href="#hero" class="mobile-nav-link"><span class="cmd-num">01.</span><span class="menu-label">Home</span><code>$ cd ~</code></a></li>
+          <li><a href="#about" class="mobile-nav-link"><span class="cmd-num">02.</span><span class="menu-label">Lore &amp; Story</span><code>$ cat story.md</code></a></li>
+          <li><a href="#mission" class="mobile-nav-link"><span class="cmd-num">03.</span><span class="menu-label">Yet to be revealed</span><code>$ cat pitch.sh</code></a></li>
+          <li><a href="#team" class="mobile-nav-link"><span class="cmd-num">04.</span><span class="menu-label">The Squad</span><code>$ git log --team</code></a></li>
+          <li><a href="#timeline" class="mobile-nav-link"><span class="cmd-num">05.</span><span class="menu-label">Roadmap</span><code>$ cat milestones</code></a></li>
         </ul>
       </nav>
       <div class="drawer-footer">
@@ -123,7 +99,7 @@
       <div class="container hero-container">
         <!-- Sticky Note Badge / Human Element -->
         <div class="hero-sticky-note" aria-hidden="true">
-          <span class="pin">📌</span>
+          <span class="pin"></span>
           <span class="handwritten-text">"Don't panic! It worked on localhost at 4:12 AM."</span>
         </div>
 
@@ -143,8 +119,8 @@
             <span id="dynamicTypewriter" class="typewriter-text"></span><span class="cursor">_</span>
           </p>
 
-          <p class="hero-description">
-            A high-octane engineering team built on sharp logic, relentless problem solving, and an undeniable "+ Tax" of late-night chai, git conflicts, and unhinged collective ambition. We build real tech for real-world impact.
+          <p class="hero-description" id="heroDesc">
+            <!-- Loaded dynamically from data.md -->
           </p>
 
           <!-- Hero Action CTAs -->
@@ -154,9 +130,6 @@
             </a>
             <a href="#team" class="btn btn-secondary">
               <span>Meet The Squad</span>
-            </a>
-            <a href="#terminal" class="btn btn-outline">
-              <code>$ open terminal</code>
             </a>
           </div>
 
@@ -168,12 +141,12 @@
               <div class="stat-sub">0% decaf tolerated</div>
             </div>
             <div class="stat-card">
-              <div class="stat-num" id="statCommits">348<span class="stat-unit">+</span></div>
+              <div class="stat-num" id="statCommits">---</div>
               <div class="stat-label">Git Commits Pushed</div>
               <div class="stat-sub">Branch: main (with fear)</div>
             </div>
             <div class="stat-card">
-              <div class="stat-num" id="statBugs">0<span class="stat-unit">bugs*</span></div>
+              <div class="stat-num" id="statBugs">---</div>
               <div class="stat-label">Documented Features</div>
               <div class="stat-sub">*It's an undocumented feature</div>
             </div>
@@ -191,9 +164,9 @@
     <section class="section lore-section" id="about">
       <div class="container">
         <div class="section-header">
-          <div class="section-badge">// 01. THE ORIGIN STORY</div>
-          <h2 class="section-title">What's in a Name? The "+ Tax" Equation</h2>
-          <p class="section-subtitle">Why call ourselves GirlGangPlusTax? Because brilliance comes with a mandatory overhead.</p>
+          <div class="section-badge" id="loreBadge"><!-- Loaded dynamically --></div>
+          <h2 class="section-title" id="loreTitle"><!-- Loaded dynamically --></h2>
+          <p class="section-subtitle" id="loreSubtitle"><!-- Loaded dynamically --></p>
         </div>
 
         <div class="lore-grid">
@@ -206,18 +179,18 @@
               <span class="bar-title">origin_manifesto.txt</span>
             </div>
             <div class="card-body">
-              <p class="lore-lead">
-                Every powerhouse hackathon team has its secret sauce. For us, it's the <strong>"+ Tax"</strong>.
+              <p class="lore-lead" id="loreLead">
+                <!-- Loaded dynamically -->
               </p>
-              <p>
-                In any 36-hour sprint, code alone doesn't carry you past the finish line. You pay a human tax: the heated architectural debates, the random 2:30 AM philosophical breakthroughs, the emergency snacks, and the stubborn refusal to submit a lukewarm slide deck.
+              <p id="loreMain">
+                <!-- Loaded dynamically -->
               </p>
               <div class="quote-block">
                 <span class="quote-symbol">“</span>
-                <p>We are the girl gang who writes clean architectures, debugs race conditions, and taxes the hackathon arena with unmatched enthusiasm and technical depth.</p>
+                <p id="loreQuote"><!-- Loaded dynamically --></p>
               </div>
-              <div class="handwritten-annotation">
-                ✍️ "Plus, someone has to pay the tax of explaining neural networks to the jury in 3 minutes flat!"
+              <div class="handwritten-annotation" id="loreNote">
+                <!-- Loaded dynamically -->
               </div>
             </div>
           </div>
@@ -233,7 +206,7 @@
                 <pre><code><span class="token-keyword">const</span> <span class="token-var">GirlGangPlusTax</span> = {
   <span class="token-prop">baseSquad</span>: [<span class="token-string">"Leadership"</span>, <span class="token-string">"AI/ML"</span>, <span class="token-string">"Fullstack"</span>, <span class="token-string">"DevOps"</span>, <span class="token-string">"UI/UX"</span>],
   <span class="token-prop">hackathonTax</span>: {
-    <span class="token-prop">caffeine</span>: <span class="token-string">"24/7 Chai &amp; Espresso"</span>,
+    <span class="token-prop">caffeine</span>: <span class="token-string">"24/7 Chai pe charcha"</span>,
     <span class="token-prop">debuggingEnergy</span>: <span class="token-string">"Infinite Loops Squashed"</span>,
     <span class="token-prop">brainpowerSurge</span>: <span class="token-string">"3:00 AM Eureka Moments"</span>,
     <span class="token-prop">sarcasmIndex</span>: <span class="token-number">99.9</span>,
@@ -242,17 +215,14 @@
   <span class="token-func">execute</span>() {
     <span class="token-keyword">return</span> <span class="token-keyword">this</span>.baseSquad.reduce(
       (impact, member) =&gt; impact * <span class="token-number">10</span>, 
-      <span class="token-string">"🏆 SIH 2026 VICTORY"</span>
+      <span class="token-string">"SIH 2026 VICTORY"</span>
     );
   }
 };</code></pre>
               </div>
-              
-              <div class="formula-badges">
-                <span class="chip chip-lime">⚡ Fast Execution</span>
-                <span class="chip chip-peach">🧠 Deep Research</span>
-                <span class="chip chip-cyan">🛡️ Rock-Solid Architecture</span>
-                <span class="chip chip-gold">🎯 User-Centric Design</span>
+
+              <div class="formula-badges" id="loreBadges">
+                <!-- Loaded dynamically -->
               </div>
             </div>
           </div>
@@ -264,99 +234,36 @@
     <section class="section mission-section" id="mission">
       <div class="container">
         <div class="section-header">
-          <div class="section-badge">// 02. SMART INDIA HACKATHON 2026</div>
-          <h2 class="section-title">The SIH 2026 Battle Mission</h2>
-          <p class="section-subtitle">Solving national challenges with scalable, intelligent, and human-first engineering.</p>
+          <div class="section-badge" id="loreBadge"><!-- Loaded dynamically --></div>
+          <h2 class="section-title" id="loreTitle"><!-- Loaded dynamically --></h2>
+          <p class="section-subtitle" id="loreSubtitle"><!-- Loaded dynamically --></p>
         </div>
 
         <div class="mission-layout">
           <!-- Problem Statement Spotlight Card -->
           <div class="mission-card problem-card">
-            <div class="card-tag">PROBLEM STATEMENT // SIH 2026</div>
-            <h3 class="problem-title">Intelligent Automation &amp; Real-time Decision Engine for Public Impact</h3>
-            <p class="problem-text">
-              Legacy public systems struggle with data fragmentation, high latency in decision execution, and clunky interfaces that alienate grassroots users. Our team is building a resilient, AI-augmented, offline-capable decision engine tailored for mission-critical operations.
+            <div class="card-tag" id="problemCardTag"><!-- Loaded dynamically --></div>
+            <h3 class="problem-title" id="problemTitle"><!-- Loaded dynamically --></h3>
+            <p class="problem-text" id="problemDescription">
+              <!-- Loaded dynamically -->
             </p>
-            
-            <div class="problem-highlights">
-              <div class="highlight-item">
-                <span class="icon">🎯</span>
-                <div>
-                  <strong>Direct Citizen Impact:</strong> Zero latency, lightweight edge deployments.
-                </div>
-              </div>
-              <div class="highlight-item">
-                <span class="icon">🔒</span>
-                <div>
-                  <strong>Security &amp; Integrity:</strong> End-to-end cryptographic audit trails.
-                </div>
-              </div>
-              <div class="highlight-item">
-                <span class="icon">🌐</span>
-                <div>
-                  <strong>Multilingual Accessibility:</strong> Voice-first and vernacular text parsing.
-                </div>
-              </div>
+
+            <div class="problem-highlights" id="problemHighlights">
+              <!-- Loaded dynamically -->
             </div>
           </div>
 
           <!-- Architecture & Tech Stack Deck -->
           <div class="mission-card stack-card">
-            <div class="card-tag">SYSTEM ARCHITECTURE // TECH ARSENAL</div>
-            
-            <div class="stack-categories">
-              <div class="stack-group">
-                <div class="group-header">
-                  <span class="mono-symbol">#01</span> Frontend &amp; Interface
-                </div>
-                <div class="group-tags">
-                  <span class="tech-tag">Next.js / Vanilla ES6</span>
-                  <span class="tech-tag">Tailwind / Vanilla CSS</span>
-                  <span class="tech-tag">PWA Offline Mode</span>
-                  <span class="tech-tag">WebSockets</span>
-                </div>
-              </div>
+            <div class="card-tag" id="stackCardTag"><!-- Loaded dynamically --></div>
 
-              <div class="stack-group">
-                <div class="group-header">
-                  <span class="mono-symbol">#02</span> Backend &amp; Core Engine
-                </div>
-                <div class="group-tags">
-                  <span class="tech-tag">Python / FastAPI</span>
-                  <span class="tech-tag">Go / Rust Microservices</span>
-                  <span class="tech-tag">PostgreSQL + Redis</span>
-                  <span class="tech-tag">gRPC Streams</span>
-                </div>
-              </div>
-
-              <div class="stack-group">
-                <div class="group-header">
-                  <span class="mono-symbol">#03</span> Intelligence &amp; Edge AI
-                </div>
-                <div class="group-tags">
-                  <span class="tech-tag">PyTorch / ONNX Runtime</span>
-                  <span class="tech-tag">Fine-Tuned LLMs</span>
-                  <span class="tech-tag">Vector DB (Qdrant)</span>
-                  <span class="tech-tag">Edge Computing</span>
-                </div>
-              </div>
-
-              <div class="stack-group">
-                <div class="group-header">
-                  <span class="mono-symbol">#04</span> DevOps &amp; Reliability
-                </div>
-                <div class="group-tags">
-                  <span class="tech-tag">Docker &amp; K8s</span>
-                  <span class="tech-tag">GitHub Actions CI/CD</span>
-                  <span class="tech-tag">Terraform</span>
-                  <span class="tech-tag">Prometheus / Grafana</span>
-                </div>
-              </div>
+            <div class="stack-categories" id="stackCategories">
+              <!-- Loaded dynamically -->
             </div>
 
             <!-- Sticky Note on Architecture -->
-            <div class="stack-sticky-note">
-              <span>💡 "Engineered to withstand jury stress tests and 3 AM memory leaks!"</span>
+            <div class="stack-sticky-note" id="archNote">
+              <!-- Loaded dynamically -->
             </div>
           </div>
         </div>
@@ -369,317 +276,23 @@
         <div class="section-header">
           <div class="section-badge">// 03. MEET THE SQUAD</div>
           <h2 class="section-title">The Engineers Behind the Machine</h2>
-          <p class="section-subtitle">Meet the minds powering GirlGangPlusTax. Each brings distinct firepower to the table.</p>
+          <p class="section-subtitle">Meet the minds powering GirlGangPlusTax. Each brings distinct firepower to the
+            table.</p>
         </div>
 
         <!-- Filter / Role Tabs -->
         <div class="team-filter-bar">
-          <button class="filter-btn active" data-filter="all">All Members [6]</button>
+          <button class="filter-btn active" data-filter="all">All Members</button>
           <button class="filter-btn" data-filter="core">Core &amp; Lead</button>
           <button class="filter-btn" data-filter="ai">AI / ML</button>
           <button class="filter-btn" data-filter="fullstack">Fullstack &amp; Infra</button>
           <button class="filter-btn" data-filter="design">Design &amp; Pitch</button>
         </div>
 
-        <!-- Team Members Grid -->
-        <div class="team-grid" id="teamGrid">
-          <!-- Member 1: Team Lead -->
-          <div class="member-card" data-category="core">
-            <div class="member-header">
-              <div class="member-avatar avatar-lead">
-                <span class="avatar-text">&lt;TL/&gt;</span>
-              </div>
-              <div class="member-badge-group">
-                <span class="member-role">Team Lead &amp; Architect</span>
-                <span class="badge-mini">Strategic Overlord</span>
-              </div>
-            </div>
-            <div class="member-body">
-              <h3 class="member-name">Sayantica</h3>
-              <p class="member-handle">@sayantica.exe</p>
-              <p class="member-bio">
-                Orchestrating microservices, team harmony, and pitch perfection. Keeps the roadmap on track when code panic strikes.
-              </p>
-              <div class="member-quirks">
-                <div class="quirk-item">
-                  <span class="q-label">Superpower:</span> <span class="q-val">Turning chaotic specs into clean system designs</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Caffeine Intake:</span> <span class="q-val">5x Filter Coffee / Day</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Favorite Error:</span> <span class="q-val"><code>0 errors, 0 warnings (Suspicious)</code></span>
-                </div>
-              </div>
-              <div class="member-tags">
-                <span>Architecture</span>
-                <span>Fullstack</span>
-                <span>Pitching</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member 2: AI & ML Specialist -->
-          <div class="member-card" data-category="ai">
-            <div class="member-header">
-              <div class="member-avatar avatar-ai">
-                <span class="avatar-text">&lt;AI/&gt;</span>
-              </div>
-              <div class="member-badge-group">
-                <span class="member-role">AI / ML Engineer</span>
-                <span class="badge-mini">Tensor Magician</span>
-              </div>
-            </div>
-            <div class="member-body">
-              <h3 class="member-name">Model Whisperer</h3>
-              <p class="member-handle">@tensors.ai</p>
-              <p class="member-bio">
-                Fine-tuning neural weights while everyone else is sleeping. If a problem exists, an ensemble model will crush it.
-              </p>
-              <div class="member-quirks">
-                <div class="quirk-item">
-                  <span class="q-label">Superpower:</span> <span class="q-val">Predicting gradient explosions before they happen</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Caffeine Intake:</span> <span class="q-val">Cold Brew IV Drip</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Favorite Error:</span> <span class="q-val"><code>CUDA Out of Memory (Pain)</code></span>
-                </div>
-              </div>
-              <div class="member-tags">
-                <span>PyTorch</span>
-                <span>Transformers</span>
-                <span>Edge AI</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member 3: Fullstack & Backend -->
-          <div class="member-card" data-category="fullstack">
-            <div class="member-header">
-              <div class="member-avatar avatar-fs">
-                <span class="avatar-text">&lt;FS/&gt;</span>
-              </div>
-              <div class="member-badge-group">
-                <span class="member-role">Fullstack Lead</span>
-                <span class="badge-mini">API Maestro</span>
-              </div>
-            </div>
-            <div class="member-body">
-              <h3 class="member-name">Async Warrior</h3>
-              <p class="member-handle">@async.await</p>
-              <p class="member-bio">
-                Building responsive frontends and low-latency REST/GraphQL APIs that never buckle under pressure tests.
-              </p>
-              <div class="member-quirks">
-                <div class="quirk-item">
-                  <span class="q-label">Superpower:</span> <span class="q-val">Fixing CORS issues with single-line precision</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Caffeine Intake:</span> <span class="q-val">Hot Masala Chai</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Favorite Error:</span> <span class="q-val"><code>TypeError: undefined is not a function</code></span>
-                </div>
-              </div>
-              <div class="member-tags">
-                <span>FastAPI</span>
-                <span>React/ES6</span>
-                <span>WebSockets</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member 4: DevOps & Cloud -->
-          <div class="member-card" data-category="fullstack">
-            <div class="member-header">
-              <div class="member-avatar avatar-infra">
-                <span class="avatar-text">&lt;OPS/&gt;</span>
-              </div>
-              <div class="member-badge-group">
-                <span class="member-role">DevOps &amp; Security</span>
-                <span class="badge-mini">Docker Wrangler</span>
-              </div>
-            </div>
-            <div class="member-body">
-              <h3 class="member-name">Infra Commander</h3>
-              <p class="member-handle">@k8s.root</p>
-              <p class="member-bio">
-                Containers, zero-downtime pipelines, edge caching, and serverless clusters. Makes sure the jury demo never drops 500s.
-              </p>
-              <div class="member-quirks">
-                <div class="quirk-item">
-                  <span class="q-label">Superpower:</span> <span class="q-val">Spinning up full production clusters in 90 seconds</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Caffeine Intake:</span> <span class="q-val">Espresso Double Shots</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Favorite Error:</span> <span class="q-val"><code>CrashLoopBackOff (Challenge Accepted)</code></span>
-                </div>
-              </div>
-              <div class="member-tags">
-                <span>Docker</span>
-                <span>Kubernetes</span>
-                <span>CI/CD</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member 5: UI/UX & Design -->
-          <div class="member-card" data-category="design">
-            <div class="member-header">
-              <div class="member-avatar avatar-ux">
-                <span class="avatar-text">&lt;UX/&gt;</span>
-              </div>
-              <div class="member-badge-group">
-                <span class="member-role">UI/UX &amp; Product</span>
-                <span class="badge-mini">Pixel Perfectionist</span>
-              </div>
-            </div>
-            <div class="member-body">
-              <h3 class="member-name">Design Alchemist</h3>
-              <p class="member-handle">@figma.ninja</p>
-              <p class="member-bio">
-                Translating complex system metrics into effortless user flows, snappy interfaces, and memorable presentations.
-              </p>
-              <div class="member-quirks">
-                <div class="quirk-item">
-                  <span class="q-label">Superpower:</span> <span class="q-val">Detecting 1px misalignment from across the room</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Caffeine Intake:</span> <span class="q-val">Iced Caramel Macchiato</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Favorite Error:</span> <span class="q-val"><code>z-index: 999999 (Not enough)</code></span>
-                </div>
-              </div>
-              <div class="member-tags">
-                <span>Figma</span>
-                <span>Accessibility</span>
-                <span>Micro-Interactions</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member 6: Research & Data -->
-          <div class="member-card" data-category="ai">
-            <div class="member-header">
-              <div class="member-avatar avatar-research">
-                <span class="avatar-text">&lt;DATA/&gt;</span>
-              </div>
-              <div class="member-badge-group">
-                <span class="member-role">Data &amp; Domain Research</span>
-                <span class="badge-mini">Fact Hunter</span>
-              </div>
-            </div>
-            <div class="member-body">
-              <h3 class="member-name">Data Strategist</h3>
-              <p class="member-handle">@data.insights</p>
-              <p class="member-bio">
-                Digging through government datasets, API schemas, and validation benchmarks to ensure our numbers are bulletproof.
-              </p>
-              <div class="member-quirks">
-                <div class="quirk-item">
-                  <span class="q-label">Superpower:</span> <span class="q-val">Scraping and cleaning unformatted CSVs in minutes</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Caffeine Intake:</span> <span class="q-val">Green Tea + Dark Chocolate</span>
-                </div>
-                <div class="quirk-item">
-                  <span class="q-label">Favorite Error:</span> <span class="q-val"><code>NaN (Not a Number, but is a mood)</code></span>
-                </div>
-              </div>
-              <div class="member-tags">
-                <span>Pandas</span>
-                <span>ETL Pipelines</span>
-                <span>Benchmarking</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Interactive "+ Tax" Calculator Widget -->
-    <section class="section calc-section" id="calculator">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-badge">// 04. THE TAX CALCULATOR</div>
-          <h2 class="section-title">The Hackathon Survival Tax Estimator</h2>
-          <p class="section-subtitle">Adjust the sprint parameters to calculate your team's human tax score!</p>
-        </div>
-
-        <div class="calculator-box">
-          <div class="calc-controls">
-            <!-- Slider 1: Hackathon Duration -->
-            <div class="calc-group">
-              <div class="calc-label-row">
-                <label for="hoursInput">Sprint Duration (Hours):</label>
-                <span class="calc-value" id="hoursVal">36 hrs</span>
-              </div>
-              <input type="range" id="hoursInput" min="12" max="72" value="36" step="6" class="mono-slider">
-            </div>
-
-            <!-- Slider 2: Cups of Chai / Coffee -->
-            <div class="calc-group">
-              <div class="calc-label-row">
-                <label for="chaiInput">Chai / Coffee Consumed (Cups/Person):</label>
-                <span class="calc-value" id="chaiVal">8 cups</span>
-              </div>
-              <input type="range" id="chaiInput" min="1" max="25" value="8" step="1" class="mono-slider">
-            </div>
-
-            <!-- Slider 3: Bugs Encountered -->
-            <div class="calc-group">
-              <div class="calc-label-row">
-                <label for="bugsInput">Bugs Encountered &amp; Annihilated:</label>
-                <span class="calc-value" id="bugsVal">24 bugs</span>
-              </div>
-              <input type="range" id="bugsInput" min="5" max="100" value="24" step="5" class="mono-slider">
-            </div>
-
-            <!-- Slider 4: Late Night Panic Index -->
-            <div class="calc-group">
-              <div class="calc-label-row">
-                <label for="panicInput">Panic Level at 3:00 AM:</label>
-                <span class="calc-value" id="panicVal">Controlled Chaos (65%)</span>
-              </div>
-              <input type="range" id="panicInput" min="0" max="100" value="65" step="5" class="mono-slider">
-            </div>
-          </div>
-
-          <!-- Calc Result Output -->
-          <div class="calc-output">
-            <div class="output-header">// CALCULATED TAX AUDIT</div>
-            <div class="tax-score-badge">
-              <span class="tax-score-num" id="taxScoreNum">88.5</span>
-              <span class="tax-score-label">/ 100 TAX RATING</span>
-            </div>
-            
-            <div class="tax-verdict" id="taxVerdict">
-              "STATUS: Peak Hackathon Flow. Ready to present to the SIH Jury without blinking."
-            </div>
-
-            <div class="tax-breakdown-list">
-              <div class="breakdown-row">
-                <span>Caffeine Density:</span>
-                <span id="taxCaffeineResult" class="mono-accent">High (Supercharged)</span>
-              </div>
-              <div class="breakdown-row">
-                <span>Git Conflict Risk:</span>
-                <span id="taxGitRisk" class="mono-accent">Moderate (Git Pull with Prayers)</span>
-              </div>
-              <div class="breakdown-row">
-                <span>SIH Trophy Probability:</span>
-                <span id="taxWinProb" class="mono-lime">98.9% 🏆</span>
-              </div>
-            </div>
-
-            <button id="recalibrateTaxBtn" class="btn btn-primary btn-sm btn-block">
-              <span>⚡ Recalibrate Tax Equation</span>
-            </button>
+        <!-- Team Members Scroll Wrapper (horizontal on mobile) -->
+        <div class="team-scroll-wrapper">
+          <div class="team-grid" id="teamGrid">
+            <!-- Populated dynamically from squad.md -->
           </div>
         </div>
       </div>
@@ -694,144 +307,9 @@
           <p class="section-subtitle">From ideation whiteboards to the national grand stage.</p>
         </div>
 
-        <div class="timeline-container">
-          <!-- Step 1 -->
-          <div class="timeline-item done">
-            <div class="timeline-marker">01</div>
-            <div class="timeline-content">
-              <div class="timeline-status-pill">COMPLETED</div>
-              <h3 class="timeline-title">Problem Selection &amp; Deep Research</h3>
-              <p class="timeline-desc">Dissected SIH problem statements, analyzed existing government benchmarks, and formulated our unique architecture.</p>
-              <span class="timeline-date">Sprint Phase Alpha</span>
-            </div>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="timeline-item done">
-            <div class="timeline-marker">02</div>
-            <div class="timeline-content">
-              <div class="timeline-status-pill">COMPLETED</div>
-              <h3 class="timeline-title">Internal Hackathon Qualifier</h3>
-              <p class="timeline-desc">Pitched working prototype with live ML inference and offline synchronization. Selected as top institutional team.</p>
-              <span class="timeline-date">Sprint Phase Beta</span>
-            </div>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="timeline-item active">
-            <div class="timeline-marker">03</div>
-            <div class="timeline-content">
-              <div class="timeline-status-pill pulse-pill">IN PROGRESS (ACTIVE)</div>
-              <h3 class="timeline-title">Grand Finale Architecture Hardening</h3>
-              <p class="timeline-desc">Edge deployment optimization, UI polish, microservice stress-testing, and failover redundancy implementation.</p>
-              <span class="timeline-date">SIH Grand Sprint</span>
-            </div>
-          </div>
-
-          <!-- Step 4 -->
-          <div class="timeline-item upcoming">
-            <div class="timeline-marker">04</div>
-            <div class="timeline-content">
-              <div class="timeline-status-pill">UPCOMING</div>
-              <h3 class="timeline-title">Grand Finale 36-Hour Hackathon</h3>
-              <p class="timeline-desc">Live judging rounds, continuous code sprints, jury demos, and bringing home the national title!</p>
-              <span class="timeline-date">Grand Finale Day</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Interactive Hackathon Sandbox Terminal -->
-    <section class="section terminal-section" id="terminal">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-badge">// 06. INTERACTIVE CLI SANDBOX</div>
-          <h2 class="section-title">GirlGang Terminal Interface</h2>
-          <p class="section-subtitle">Type commands or click quick suggestions below to interact with our team shell.</p>
-        </div>
-
-        <div class="terminal-wrapper">
-          <div class="terminal-bar">
-            <div class="terminal-buttons">
-              <span class="t-btn t-close"></span>
-              <span class="t-btn t-min"></span>
-              <span class="t-btn t-max"></span>
-            </div>
-            <div class="terminal-title">girlgang-shell — zsh — 80x24</div>
-            <div class="terminal-status">[ONLINE]</div>
-          </div>
-
-          <div class="terminal-screen" id="terminalScreen" role="region" aria-live="polite">
-            <div class="t-line t-welcome">
-              Welcome to <span class="t-highlight">GirlGangPlusTax CLI</span> (v2026.1-sih-release).<br>
-              Type <span class="t-cmd">'help'</span> for a list of available commands or click the chips below.
-            </div>
-            <!-- Dynamic command history appended here -->
-          </div>
-
-          <div class="terminal-input-bar">
-            <span class="prompt-symbol">girlgang@sih-2026:~$</span>
-            <input type="text" id="terminalInput" class="t-input" placeholder="type 'help', 'team', 'tax', 'sih', 'coffee', 'sudo win'..." autocomplete="off" spellcheck="false">
-            <button id="terminalSubmitBtn" class="terminal-submit" title="Send Command">&crarr;</button>
-          </div>
-
-          <!-- Quick Command Chips -->
-          <div class="quick-commands-bar">
-            <span class="quick-label">Quick Commands:</span>
-            <button class="cmd-chip" data-cmd="help">help</button>
-            <button class="cmd-chip" data-cmd="team">team</button>
-            <button class="cmd-chip" data-cmd="tax">tax</button>
-            <button class="cmd-chip" data-cmd="sih">sih</button>
-            <button class="cmd-chip" data-cmd="coffee">coffee</button>
-            <button class="cmd-chip" data-cmd="git-status">git status</button>
-            <button class="cmd-chip" data-cmd="sudo win">sudo win</button>
-            <button class="cmd-chip" data-cmd="clear">clear</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Community Cheer Wall (Saved in localStorage) -->
-    <section class="section cheer-section" id="cheers">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-badge">// 07. COMMUNITY CHEER WALL</div>
-          <h2 class="section-title">Leave a Sticky Note for the Gang</h2>
-          <p class="section-subtitle">Drop your words of encouragement, meme advice, or good luck vibes. It gets pinned here!</p>
-        </div>
-
-        <div class="cheer-wall-layout">
-          <!-- Form to submit a cheer -->
-          <div class="cheer-form-card">
-            <div class="form-title">// POST A STICKY NOTE</div>
-            <form id="cheerForm" class="cheer-form">
-              <div class="form-group">
-                <label for="cheerAuthor">Your Name / Handle:</label>
-                <input type="text" id="cheerAuthor" class="mono-input" placeholder="e.g. Fellow Hacker, Mentor, Fan" required maxlength="30">
-              </div>
-              <div class="form-group">
-                <label for="cheerMessage">Your Note / Advice:</label>
-                <textarea id="cheerMessage" class="mono-textarea" placeholder="e.g. Rooting for you guys! Remember to test edge cases on stage!" required maxlength="180" rows="3"></textarea>
-              </div>
-              <div class="form-group">
-                <label>Note Color &amp; Vibe:</label>
-                <div class="color-picker-group">
-                  <label class="color-radio"><input type="radio" name="noteColor" value="yellow" checked><span class="color-swatch swatch-yellow"></span> Sticky Yellow</label>
-                  <label class="color-radio"><input type="radio" name="noteColor" value="pink"><span class="color-swatch swatch-pink"></span> Neon Pink</label>
-                  <label class="color-radio"><input type="radio" name="noteColor" value="cyan"><span class="color-swatch swatch-cyan"></span> Cyber Cyan</label>
-                  <label class="color-radio"><input type="radio" name="noteColor" value="lime"><span class="color-swatch swatch-lime"></span> Lime Punch</label>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary btn-block" id="postCheerBtn">
-                <span>📌 Pin Sticky Note to Wall</span>
-              </button>
-            </form>
-          </div>
-
-          <!-- Sticky Notes Grid -->
-          <div class="sticky-board" id="stickyBoard">
-            <!-- Initial and user sticky notes will be rendered here -->
+        <div class="timeline-scroll-wrapper">
+          <div class="timeline-container" id="timelineContainer">
+            <!-- Populated dynamically from roadmap.md -->
           </div>
         </div>
       </div>
@@ -851,7 +329,7 @@
           Smart India Hackathon 2026 Contender. Code written with grit, tested with love, deployed with caffeine.
         </p>
         <div class="footer-slogan">
-          <code>&gt; "Turning caffeine into national impact."</code>
+          <code id="footerSlogan"><!-- Loaded dynamically --></code>
         </div>
       </div>
 
@@ -862,24 +340,24 @@
           <li><a href="#about">&gt; Origin &amp; Lore</a></li>
           <li><a href="#mission">&gt; SIH 2026 Solution</a></li>
           <li><a href="#team">&gt; Team Roster</a></li>
-          <li><a href="#calculator">&gt; Tax Estimator</a></li>
-          <li><a href="#terminal">&gt; CLI Sandbox</a></li>
         </ul>
       </div>
 
       <div class="footer-col meta-col">
         <h4 class="footer-heading">// HACKATHON SPECS</h4>
-        <div class="meta-item"><span>Event:</span> <strong>Smart India Hackathon 2026</strong></div>
+        <div class="meta-item"><span>Event:</span> <strong id="footerEvent"><!-- Loaded dynamically --></strong></div>
         <div class="meta-item"><span>Status:</span> <strong class="text-lime">Ready for Finals</strong></div>
-        <div class="meta-item"><span>Team Name:</span> <strong>GirlGangPlusTax</strong></div>
-        <div class="meta-item"><span>Tax Deductible:</span> <strong>Absolutely Not</strong></div>
+        <div class="meta-item"><span>Team Name:</span> <strong id="footerTeamName"><!-- Loaded dynamically --></strong>
+        </div>
+        <div class="meta-item"><span>Tax Deductible:</span> <strong
+            id="footerTaxDeductible"><!-- Loaded dynamically --></strong></div>
       </div>
     </div>
 
     <div class="footer-bottom">
       <div class="container footer-bottom-container">
         <p class="copyright">
-          &copy; 2026 GirlGangPlusTax. Built for SIH with HTML, Vanilla CSS &amp; Pure JS.
+          &copy; 2026 GirlGangPlusTax.
         </p>
         <button id="backToTopBtn" class="back-to-top" title="Scroll to top">
           <span>&uarr; TOP</span>
@@ -889,6 +367,8 @@
   </footer>
 
   <!-- Main JavaScript -->
+  <script>window.DATA_PREFIX = '';</script>
   <script src="script.js"></script>
 </body>
+
 </html>
